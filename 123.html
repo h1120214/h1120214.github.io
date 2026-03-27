@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architecture Portfolio | 建築設計探索</title>
+    <link href="https://unpkg.com" rel="stylesheet">
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
+    <style>
+        :root {
+            --bg-cream: #FFFDF0;
+            --soft-orange: #FFB3A1;
+            --soft-blue: #AEC6CF;
+            --soft-green: #B2D8B2;
+            --text-gray: #555;
+            --white-glass: rgba(255, 255, 255, 0.6);
+            /* 關鍵：用柔和陰影取代生硬邊框 */
+            --soft-shadow: 10px 10px 30px rgba(200, 180, 150, 0.15);
+            --inner-light: inset 2px 2px 5px rgba(255, 255, 255, 0.8);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-cream);
+            color: var(--text-gray);
+            overflow-x: hidden;
+            line-height: 1.7;
+        }
+
+        /* --- 漂浮幾何插圖 (背景) --- */
+        .shape { position: fixed; z-index: -1; opacity: 0.5; filter: blur(30px); border-radius: 50%; }
+
+        /* --- 導覽列：無框膠囊 --- */
+        nav {
+            position: fixed; top: 25px; left: 50%; transform: translateX(-50%);
+            background: var(--white-glass); backdrop-filter: blur(10px);
+            padding: 12px 35px; border-radius: 100px; z-index: 1000;
+            box-shadow: var(--soft-shadow);
+            display: flex; gap: 25px;
+        }
+        nav a { text-decoration: none; color: var(--text-gray); font-weight: 600; font-size: 0.9rem; transition: 0.3s; }
+        nav a:hover { color: var(--soft-orange); transform: translateY(-2px); }
+
+        /* --- 英雄區：手繪感大標 --- */
+        header {
+            height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 0 10%;
+        }
+        .hero-title {
+            font-family: 'Fredoka', cursive; font-size: 5.5rem; color: #333;
+            text-shadow: 4px 4px 0px var(--soft-orange); margin-bottom: 20px;
+        }
+        .intro-sticker {
+            background: white; padding: 40px; border-radius: 30px;
+            box-shadow: var(--soft-shadow); max-width: 700px;
+            position: relative; border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        /* --- 通用標籤 --- */
+        .section-tag {
+            display: inline-block; background: var(--soft-blue); color: white;
+            padding: 6px 20px; border-radius: 50px; font-weight: 700;
+            margin-bottom: 20px; box-shadow: 3px 3px 10px rgba(0,0,0,0.05);
+        }
+
+        /* --- 學習成果：柔和色塊 --- */
+        section { padding: 100px 10%; }
+        .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .color-card {
+            padding: 40px; border-radius: 40px; box-shadow: var(--soft-shadow);
+            transition: 0.4s; position: relative; overflow: hidden;
+        }
+        .color-card:hover { transform: translateY(-10px); }
+        .res-en { background-color: #FFE5E5; }
+        .res-bio { background-color: #E5F1FF; }
+
+        /* --- 多元表現：對話風格 --- */
+        .activity-wrap {
+            background: white; padding: 40px; border-radius: 40px;
+            box-shadow: var(--soft-shadow); display: flex; align-items: center; gap: 40px;
+            margin-bottom: 40px;
+        }
+        .icon-box { font-size: 4rem; background: var(--bg-cream); width: 120px; height: 120px;
+                    display: flex; align-items: center; justify-content: center; border-radius: 30px; flex-shrink: 0;}
+
+        /* --- SketchUp：拍立得展示 (拿掉黑邊) --- */
+        .gallery { display: flex; gap: 25px; overflow-x: auto; padding: 20px 0; }
+        .polaroid {
+            background: white; padding: 15px 15px 45px 15px; border-radius: 5px;
+            box-shadow: 5px 10px 25px rgba(180, 160, 120, 0.2);
+            transition: 0.3s; flex-shrink: 0; width: 220px; cursor: zoom-in;
+        }
+        .polaroid:hover { transform: scale(1.05) rotate(0deg); }
+        .polaroid:nth-child(even) { transform: rotate(2deg); }
+        .polaroid:nth-child(odd) { transform: rotate(-2deg); }
+        .polaroid img { width: 100%; height: 160px; object-fit: cover; border-radius: 3px; }
+
+        /* --- 檢定成績：圓潤標籤 --- */
+        .exam-flex { display: flex; justify-content: center; gap: 30px; }
+        .exam-pill {
+            background: white; padding: 25px 50px; border-radius: 35px;
+            box-shadow: var(--soft-shadow); text-align: center;
+        }
+        .exam-pill b { font-family: 'Fredoka'; font-size: 2.5rem; color: var(--soft-orange); display: block; }
+
+        /* --- 作品分析：手寫筆記感 --- */
+        .note-area {
+            background: #FFF; border-radius: 30px; padding: 30px;
+            margin-top: 30px; box-shadow: var(--soft-shadow);
+            border-left: 8px solid var(--soft-green);
+        }
+
+        #modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 253, 240, 0.9); z-index: 2000; justify-content: center; align-items: center;
+        }
+        #modal img { max-width: 80%; border-radius: 20px; box-shadow: var(--soft-shadow); }
+
+        footer { text-align: center; padding: 60px; color: #BBB; font-size: 0.8rem; }
+
+        @media (max-width: 768px) {
+            .grid-layout, .activity-wrap { flex-direction: column; grid-template-columns: 1fr; }
+            .hero-title { font-size: 3.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 背景裝飾物 -->
+<div class="shape" style="width: 300px; height: 300px; background: var(--soft-orange); top: -100px; left: -100px;"></div>
+<div class="shape" style="width: 250px; height: 250px; background: var(--soft-blue); bottom: 50px; right: -50px;"></div>
+
+<nav>
+    <a href="#about">👋 Hello</a>
+    <a href="#results">📚 學習</a>
+    <a href="#activities">🎭 多元</a>
+    <a href="#modeling">📐 模型</a>
+    <a href="#exams">🏆 成績</a>
+</nav>
+
+<header id="about">
+    <h1 class="hero-title" data-aos="zoom-in">Build Future</h1>
+    <div class="intro-sticker" data-aos="fade-up">
+        <p style="font-weight: 700; color: #333; margin-bottom: 15px; font-size: 1.2rem;">我是 [你的姓名]，一名高三學生 🏠</p>
+        <p style="text-align: justify; font-size: 0.95rem;">
+            對我來說，建築是「理性邏輯」與「感性敘事」的交集。我熱衷於將複雜的構思轉化為可觸碰的空間量體。
+            這份檔案紀錄了我從生物形態、舞台設計到數位建模的跨域探索。我準備好用好奇心與專業實力，
+            在建築設計的領域中，蓋出屬於我的世界。
+        </p>
+    </div>
+</header>
+
+<section id="results">
+    <div class="section-tag">學習成果</div>
+    <div class="grid-layout">
+        <div class="color-card res-en" data-aos="fade-right">
+            <h3 style="margin-bottom: 10px;">🔤 英語與建築視角</h3>
+            <p style="font-size: 0.9rem;">不僅考取 TOEFL 104，更透過閱讀外文建築文獻，學習如何用國際語彙描述空間感知。</p>
+        </div>
+        <div class="color-card res-bio" data-aos="fade-left">
+            <h3 style="margin-bottom: 10px;">🔬 生物構造與仿生</h3>
+            <p style="font-size: 0.9rem;">觀察自然界的微觀結構（如細胞排列），並思考這些高效的支撐模式如何應用在現代建築中。</p>
+        </div>
+    </div>
+</section>
+
+<section id="activities">
+    <div class="section-tag">多元表現</div>
+    <div class="activity-wrap" data-aos="fade-up">
+        <div class="icon-box">🎭</div>
+        <div>
+            <h3>話劇社：場景的靈魂</h3>
+            <p>主導舞台空間規劃，學習如何利用物件位置與光影對比，在小小的舞台上創造出無限的敘事張力。</p>
+        </div>
+    </div>
+    <div class="activity-wrap" data-aos="fade-up">
+        <div class="icon-box">🤝</div>
+        <div>
+            <h3>社聯會：群體的結構力學</h3>
+            <p>協調跨社團大型活動，就像在規劃城市機能，需要精準的邏輯與溫暖的溝通，確保每個環節都能穩固運作。</p>
+        </div>
+    </div>
+</section>
+
+<section id="modeling">
+    <div class="section-tag">自主學習</div>
+    <h2 style="margin-bottom: 30px;">SketchUp 空間實驗室 ✨</h2>
+    <div class="gallery">
+        <div class="polaroid" onclick="openModal('https://via.placeholder.com')">
+            <img src="https://via.placeholder.com" alt="">
+            <p style="text-align: center; margin-top: 15px; font-weight: 600;">外觀建模</p>
+        </div>
+        <div class="polaroid" onclick="openModal('https://via.placeholder.com')">
+            <img src="https://via.placeholder.com" alt="">
+            <p style="text-align: center; margin-top: 15px; font-weight: 600;">室內透視</p>
+        </div>
+        <div class="polaroid" onclick="openModal('https://via.placeholder.com')">
+            <img src="https://via.placeholder.com" alt="">
+            <p style="text-align: center; margin-top: 15px; font-weight: 600;">結構細節</p>
+        </div>
+        <div class="polaroid" onclick="openModal('https://via.placeholder.com')">
+            <img src="https://via.placeholder.com" alt="">
+            <p style="text-align: center; margin-top: 15px; font-weight: 600;">光影模擬</p>
+        </div>
+    </div>
+    <div class="note-area" data-aos="fade-left">
+        <strong>💡 作品集分析筆記：</strong><br>
+        「從點到線，再到面的轉化」。在這些 SketchUp 習作中，我特別關注如何透過軟體的推拉工具，創造出符合人體工學且具備動態美感的居住單元。
+    </div>
+</section>
+
+<section id="exams">
+    <div class="section-tag">檢定成績</div>
+    <div class="exam-flex">
+        <div class="exam-pill" data-aos="zoom-in">
+            <span>TOEFL iBT</span>
+            <b>104</b>
+        </div>
+        <div class="exam-pill" data-aos="zoom-in" data-aos-delay="200">
+            <span>GEPT 中高級</span>
+            <b>PASS</b>
+        </div>
+    </div>
+</section>
+
+<footer id="contact">
+    <p>Architecture Portfolio | [你的姓名] | 2025 個人申請資料</p>
+</footer>
+
+<div id="modal" onclick="this.style.display='none'">
+    <img id="modalImg">
+</div>
+
+<script src="https://unpkg.com"></script>
+<script>
+    AOS.init({ duration: 800, once: true });
+    function openModal(src) {
+        document.getElementById('modal').style.display = 'flex';
+        document.getElementById('modalImg').src = src;
+    }
+</script>
+
+</body>
+</html>
